@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "build": "tsup src --out-dir build"
   },
   "keywords": [],
   "author": "",
@@ -11,11 +12,15 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.13.13",
-    "tsx": "^4.19.3"
+    "tsup": "8.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "5.8.2"
   },
   "dependencies": {
+    "@prisma/client": "6.5.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "prisma": "6.5.0",
     "zod": "^3.24.2"
   }
 }
