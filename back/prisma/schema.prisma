@@ -40,5 +40,5 @@ model Job {
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
-  @@map("jobs")
+  @@map("job")
 }
