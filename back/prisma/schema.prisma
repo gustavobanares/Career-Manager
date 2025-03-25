@@ -16,16 +16,17 @@ enum JobStatus {
 }
 
 model User {
-  id    String @id @default(uuid())
-  name  String
-  email String @unique
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  password String
 
-  jobs Jobs[]
+  jobs Job[]
 
   @@map("users")
 }
 
-model Jobs {
+model Job {
   id                 String    @id @default(uuid())
   companyName        String
   application_status JobStatus @default(APPLIED)
