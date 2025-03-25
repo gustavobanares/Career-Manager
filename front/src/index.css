@@ -1,4 +1,4 @@
-//Este código utilizou IA
+/*Este código utilizou IA*/
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -98,7 +98,6 @@
   }
 }
 
-
 @theme {
-  --font-dmsans: "DM Sans", "sans-serif"; 
+  --font-dmsans: "DM Sans", "sans-serif";
 }
