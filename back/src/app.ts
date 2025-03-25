@@ -1,8 +1,8 @@
 import fastify from 'fastify'
 import fastifyJwt from '@fastify/jwt'
-import { userRoutes } from './controllers/users/routes'
+import { userRoutes } from './http/controllers/users/routes'
 import { env } from './env'
-import { jobsRoutes } from './controllers/jobs/routes'
+import { jobsRoutes } from './http/controllers/jobs/routes'
 
 export const app = fastify()
 
