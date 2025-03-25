@@ -1,30 +1,38 @@
 import { User } from '@prisma/client'
 import { hash } from 'bcryptjs'
-import { usersRepository } from '../repositories/users-repositories'
+import { UsersRepository } from '../repositories/users-repositories'
 
-export interface signUpRequest {
+export interface SignUpUseCaseRequest {
   name: string
   email: string
-  hashedPassword: string
+  password: string
 }
 
-export interface signUpResponse {
+export interface SignUpUseCaseResponse {
   user: User
 }
 
-export class signUpUseCase {
-  constructor(private usersRepository: usersRepository) {}
+export class SignUpUseCase {
+  constructor(private usersRepository: UsersRepository) {}
 
-  async execute({ name, email, hashedPassword }: signUpRequest): Promise<signUpResponse> {
+  async execute({
+    name,
+    email,
+    password,
+  }: SignUpUseCaseRequest): Promise<SignUpUseCaseResponse> {
     const userAlreadyExists = await this.usersRepository.findByEmail(email)
 
     if (userAlreadyExists) {
       throw new Error('User with this email already exists.')
     }
 
-    hashedPassword = await hash(hashedPassword, 6)
+    const hashedPassword = await hash(password, 6)
 
-    const user = await this.usersRepository.create({name, email, hashedPassword})
+    const user = await this.usersRepository.create({
+      name,
+      email,
+      password: hashedPassword,
+    })
 
     return { user }
   }

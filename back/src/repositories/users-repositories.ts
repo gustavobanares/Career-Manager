@@ -1,7 +1,7 @@
 import { User } from '@prisma/client'
-import { signUpRequest } from '../use-cases/sign-up'
+import { SignUpUseCaseRequest } from '../use-cases/sign-up'
 
-export interface usersRepository {
-  create(data: signUpRequest): Promise<User>
+export interface UsersRepository {
+  create(data: SignUpUseCaseRequest): Promise<User>
   findByEmail(email: string): Promise<User | null>
 }
