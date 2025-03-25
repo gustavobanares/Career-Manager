@@ -15,10 +15,20 @@ export async function signIn(request: FastifyRequest, reply: FastifyReply) {
     const prismaRepository = new PrismaUsersRepository()
     const signInUseCase = new SignInUseCase(prismaRepository)
 
-    const user = await signInUseCase.execute({ email, password })
+    const { user } = await signInUseCase.execute({ email, password })
+
+    const token = await reply.jwtSign(
+      {},
+      {
+        sign: {
+          sub: user.id,
+          expiresIn: '1d',
+        },
+      },
+    )
 
     reply.status(200).send({
-      user,
+      token,
     })
   } catch (error) {
     reply.status(409).send({

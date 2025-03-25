@@ -1,12 +1,15 @@
 import { compare } from 'bcryptjs'
 import { UsersRepository } from '../repositories/users-repositories'
+import { User } from '@prisma/client'
 
 export interface SignInUseCaseRequest {
   email: string
   password: string
 }
 
-export interface SignInUseCaseResponse {}
+export interface SignInUseCaseResponse {
+  user: User
+}
 
 export class SignInUseCase {
   constructor(private usersRepository: UsersRepository) {}
@@ -27,6 +30,6 @@ export class SignInUseCase {
       throw new Error('password does not match')
     }
 
-    return 'ok'
+    return { user }
   }
 }
