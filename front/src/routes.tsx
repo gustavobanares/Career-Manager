@@ -26,4 +26,8 @@ export const privateRoutes = createBrowserRouter([
     element: <AppLayout />,
     children: [{ path: '/', element: <Dashboard /> }],
   },
+  {
+    path: '*',
+    element: <Navigate to="/" />,
+  },
 ])

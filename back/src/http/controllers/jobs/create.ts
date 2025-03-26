@@ -14,12 +14,11 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
       'ACCEPTED',
     ]),
     description: z.string(),
-    feedback: z.string(),
     link: z.string(),
   })
 
   // eslint-disable-next-line
-  const { companyName, application_status, description, feedback, link } =
+  const { companyName, application_status, description, link } =
     createJobBodySchema.parse(request.body)
 
   const userId = request.user.sub
@@ -35,7 +34,6 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
     // eslint-disable-next-line
     application_status,
     description,
-    feedback,
     link,
     userId,
   })

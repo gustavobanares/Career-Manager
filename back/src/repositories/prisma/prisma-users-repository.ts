@@ -4,6 +4,20 @@ import { UsersRepository } from '../users-repositories'
 import { prisma } from '../../lib/prisma'
 
 export class PrismaUsersRepository implements UsersRepository {
+  async findById(userId: string): Promise<User | null> {
+    const user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    })
+
+    if (!user) {
+      return null
+    }
+
+    return user
+  }
+
   async create(data: SignUpUseCaseRequest): Promise<User> {
     const user = await prisma.user.create({
       data,
