@@ -8,27 +8,27 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useState, useContext } from 'react'
-import { authContext } from '../../context/auth-context'
 import { api } from '@/lib/axios'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
-export interface SignInProps {
+export interface SignUpProps {
   email: string
   password: string
 }
 
-export function SignIn() {
-  const { signIn } = useContext(authContext)
+export function SignUp() {
+  const navigate = useNavigate()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
 
-  async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     try {
-      const { data } = await api.post('/sign-in', { email, password })
-
-      signIn(data.accessToken)
+      await api.post('/sign-up', { email, password, name })
+      navigate('/sign-in', { replace: true })
     } catch (error) {
       console.log(`error: ${error}`)
     }
@@ -36,7 +36,7 @@ export function SignIn() {
 
   return (
     <main className="flex w-full h-screen justify-center items-center">
-      <form onSubmit={handleSignIn}>
+      <form onSubmit={handleSignUp}>
         <Card>
           <CardHeader>
             <CardTitle className="text-xl font-bold tracking-tight">
@@ -45,6 +45,17 @@ export function SignIn() {
             <CardDescription>Use your email and password</CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="flex flex-col gap-2 mb-5">
+              <Label htmlFor="email">Name</Label>
+              <Input
+                id="name"
+                placeholder="Your name here"
+                type="name"
+                onChange={(e) => {
+                  setName(e.target.value)
+                }}
+              />
+            </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="email">E-mail</Label>
               <Input
@@ -68,7 +79,7 @@ export function SignIn() {
               />
             </div>
             <Button type="submit" className="w-full bg-primary">
-              Log-in
+              Register
             </Button>
           </CardContent>
         </Card>
