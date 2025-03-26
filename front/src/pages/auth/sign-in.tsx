@@ -11,9 +11,10 @@ import { Label } from '@/components/ui/label'
 import { useState, useContext } from 'react'
 import { authContext } from '../../context/auth-context'
 import { api } from '@/lib/axios'
-import { useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { AxiosError } from 'axios'
+import { toastSuccessStyle } from '@/lib/toast-success-style'
 
 export interface SignInProps {
   email: string
@@ -36,7 +37,7 @@ export function SignIn() {
       const { data } = await api.post('/sign-in', { email, password })
 
       signIn(data.token)
-      toast.success(`Welcome back!`)
+      toast.success(`Welcome back!`, toastSuccessStyle)
       navigate('/', { replace: true })
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -88,6 +89,12 @@ export function SignIn() {
                   setPassword(e.target.value)
                 }}
               />
+            </div>
+            <div className="my-5 flex flex-col gap-2">
+              <CardDescription>
+                Don&apos;t have an account? Sign up{' '}
+                <NavLink to={'/sign-up'}>here.</NavLink>
+              </CardDescription>
             </div>
             <Button
               type="submit"
