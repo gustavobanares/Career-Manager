@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { SignUpUseCase } from '@/use-cases/sign-up'
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
+import { makeSignUpUseCase } from '@/use-cases/factories/make-sign-up-use-case'
 
 export async function signUp(request: FastifyRequest, reply: FastifyReply) {
   const signUpSchema = z.object({
@@ -13,14 +12,11 @@ export async function signUp(request: FastifyRequest, reply: FastifyReply) {
   const { name, email, password } = signUpSchema.parse(request.body)
 
   try {
-    const prismaRepository = new PrismaUsersRepository()
-    const signUpUseCase = new SignUpUseCase(prismaRepository)
+    const signUpUseCase = await makeSignUpUseCase()
 
-    const { user } = await signUpUseCase.execute({ name, email, password })
+    await signUpUseCase.execute({ name, email, password })
 
-    reply.status(200).send({
-      user,
-    })
+    reply.status(201).send()
   } catch (error) {
     reply.status(409).send({
       message: 'user with this email already exists',

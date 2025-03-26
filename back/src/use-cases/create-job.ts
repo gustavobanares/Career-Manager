@@ -5,7 +5,6 @@ interface CreateJobUseCaseRequest {
   companyName: string
   application_status: JobStatus
   description: string
-  feedback: string
   link: string
   userId: string
 }
@@ -22,7 +21,6 @@ export class CreateJobUseCase {
     // eslint-disable-next-line
     application_status,
     description,
-    feedback,
     link,
     userId,
   }: CreateJobUseCaseRequest): Promise<CreateJobUseCaseResponse> {
@@ -31,7 +29,6 @@ export class CreateJobUseCase {
       // eslint-disable-next-line
       application_status,
       description,
-      feedback,
       link,
       userId,
     })

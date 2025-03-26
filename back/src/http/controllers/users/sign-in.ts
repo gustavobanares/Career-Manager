@@ -1,7 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
-import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
-import { SignInUseCase } from '@/use-cases/sign-in'
+import { makeSignInUseCase } from '@/use-cases/factories/make-sign-in-use-case'
 
 export async function signIn(request: FastifyRequest, reply: FastifyReply) {
   const signInSchema = z.object({
@@ -12,8 +11,7 @@ export async function signIn(request: FastifyRequest, reply: FastifyReply) {
   const { email, password } = signInSchema.parse(request.body)
 
   try {
-    const prismaRepository = new PrismaUsersRepository()
-    const signInUseCase = new SignInUseCase(prismaRepository)
+    const signInUseCase = await makeSignInUseCase()
 
     const { user } = await signInUseCase.execute({ email, password })
 
@@ -32,7 +30,7 @@ export async function signIn(request: FastifyRequest, reply: FastifyReply) {
     })
   } catch (error) {
     reply.status(409).send({
-      message: 'credenciais invalidas',
+      message: 'Invalid credentials',
     })
   }
 }
