@@ -26,7 +26,7 @@ export function SignIn() {
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     try {
-      const { data } = await await api.post('/sign-in', { email, password })
+      const { data } = await api.post('/sign-in', { email, password })
 
       signIn(data.accessToken)
     } catch (error) {
