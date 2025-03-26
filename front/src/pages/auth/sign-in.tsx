@@ -11,6 +11,9 @@ import { Label } from '@/components/ui/label'
 import { useState, useContext } from 'react'
 import { authContext } from '../../context/auth-context'
 import { api } from '@/lib/axios'
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import { AxiosError } from 'axios'
 
 export interface SignInProps {
   email: string
@@ -18,19 +21,37 @@ export interface SignInProps {
 }
 
 export function SignIn() {
+  const navigate = useNavigate()
   const { signIn } = useContext(authContext)
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     try {
+      setIsLoading(true)
+
       const { data } = await api.post('/sign-in', { email, password })
 
-      signIn(data.accessToken)
+      signIn(data.token)
+      toast.success(`Welcome back!`)
+      navigate('/', { replace: true })
     } catch (error) {
-      console.log(`error: ${error}`)
+      if (error instanceof AxiosError) {
+        toast.error('Invalid credentials', {
+          style: {
+            color: '#4243b8',
+          },
+          iconTheme: {
+            primary: '#a61919',
+            secondary: '#FFFAEE',
+          },
+        })
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -62,12 +83,17 @@ export function SignIn() {
                 id="password"
                 placeholder="Password"
                 type="password"
+                required
                 onChange={(e) => {
                   setPassword(e.target.value)
                 }}
               />
             </div>
-            <Button type="submit" className="w-full bg-primary">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-primary"
+            >
               Log-in
             </Button>
           </CardContent>
