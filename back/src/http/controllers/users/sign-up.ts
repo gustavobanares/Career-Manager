@@ -16,7 +16,7 @@ export async function signUp(request: FastifyRequest, reply: FastifyReply) {
     const prismaRepository = new PrismaUsersRepository()
     const signUpUseCase = new SignUpUseCase(prismaRepository)
 
-    const user = await signUpUseCase.execute({ name, email, password })
+    const { user } = await signUpUseCase.execute({ name, email, password })
 
     reply.status(200).send({
       user,
