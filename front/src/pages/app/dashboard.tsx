@@ -141,7 +141,7 @@ export function Dashboard() {
 
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
-      <div className="container mx-auto py-10 w-full max-w-[90%]">
+      <div className="container mx-auto py-10 w-full max-w-[90%] md:pb-60">
         <h1 className="text-2xl font-bold mb-4 text-center">
           Job Application Tracker
         </h1>

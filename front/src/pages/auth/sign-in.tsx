@@ -58,7 +58,7 @@ export function SignIn() {
   }
 
   return (
-    <main className="md:flex w-full h-screen justify-around items-center">
+    <main className="md:flex w-full h-screen justify-around items-center font-dmsans">
       <div className=" h-full w-full flex justify-center items-center max-h-1/2 md:max-h-4/5">
         <img src={cvVector} alt="guy-holding-a-cv" className="max-h-4/5" />
       </div>
