@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { Dashboard } from './pages/app/dashboard'
 import { SignIn } from './pages/auth/sign-in'

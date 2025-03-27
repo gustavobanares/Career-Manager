@@ -1,8 +1,6 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Payment, columns } from "./columns";
-import { DataTable } from "./data-table";
+import { useState, useEffect } from 'react'
+import { Payment, columns } from './columns'
+import { DataTable } from './data-table'
 import {
   Dialog,
   DialogContent,
@@ -11,19 +9,19 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 
 export function Dashboard() {
-  const [data, setData] = useState<Payment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentText, setCurrentText] = useState("");
-  const [currentField, setCurrentField] = useState<"description" | "feedback">(
-    "description"
-  );
-  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [data, setData] = useState<Payment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentText, setCurrentText] = useState('')
+  const [currentField, setCurrentField] = useState<'description' | 'feedback'>(
+    'description',
+  )
+  const [currentIndex, setCurrentIndex] = useState<number>(-1)
 
   useEffect(() => {
     async function fetchData() {
@@ -31,76 +29,76 @@ export function Dashboard() {
         // Mock data for development/testing
         const mockData: Payment[] = [
           {
-            id: "1",
-            status: "interviewing",
-            companyName: "Itáu",
-            description: "Teste técnico",
-            feedback: "O recrutador gostou do meu portfólio",
-            link: "https://www.itau.com.br/",
-            created_at: new Date("2024-03-25T10:30:00Z"),
-            updated_at: new Date("2024-03-26T15:45:00Z"),
+            id: '1',
+            status: 'interviewing',
+            companyName: 'Itáu',
+            description: 'Teste técnico',
+            feedback: 'O recrutador gostou do meu portfólio',
+            link: 'https://www.itau.com.br/',
+            created_at: new Date('2024-03-25T10:30:00Z'),
+            updated_at: new Date('2024-03-26T15:45:00Z'),
           },
           {
-            id: "2",
-            status: "applied",
-            companyName: "Bradesco",
-            description: "Vamos ver se tenho um retorno",
-            feedback: "Vaga muito boa",
-            link: "https://banco.bradesco/naocorrentista/index.shtm",
-            created_at: new Date("2024-03-20T08:15:00Z"),
-            updated_at: new Date("2024-03-22T11:00:00Z"),
+            id: '2',
+            status: 'applied',
+            companyName: 'Bradesco',
+            description: 'Vamos ver se tenho um retorno',
+            feedback: 'Vaga muito boa',
+            link: 'https://banco.bradesco/naocorrentista/index.shtm',
+            created_at: new Date('2024-03-20T08:15:00Z'),
+            updated_at: new Date('2024-03-22T11:00:00Z'),
           },
           {
-            id: "3",
-            status: "offered",
-            companyName: "Nubank",
-            description: "Estou analisando se é viável aceitar",
-            feedback: "Passei tranquilo no teste técnico",
-            link: "https://www.nubank.com.br/",
-            created_at: new Date("2024-03-18T14:00:00Z"),
-            updated_at: new Date("2024-03-21T09:30:00Z"),
+            id: '3',
+            status: 'offered',
+            companyName: 'Nubank',
+            description: 'Estou analisando se é viável aceitar',
+            feedback: 'Passei tranquilo no teste técnico',
+            link: 'https://www.nubank.com.br/',
+            created_at: new Date('2024-03-18T14:00:00Z'),
+            updated_at: new Date('2024-03-21T09:30:00Z'),
           },
-        ];
+        ]
 
         // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 500))
 
-        setData(mockData);
-        setIsLoading(false);
+        setData(mockData)
+        setIsLoading(false)
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.error('Fetch error:', err)
         setError(
-          err instanceof Error ? err.message : "An unexpected error occurred"
-        );
-        setIsLoading(false);
+          err instanceof Error ? err.message : 'An unexpected error occurred',
+        )
+        setIsLoading(false)
       }
     }
 
-    fetchData();
-  }, []);
+    fetchData()
+  }, [])
 
   const handleUpdateData = (rowIndex: number, columnId: string, value: any) => {
     setData((prev) =>
       prev.map((row, index) =>
         index === rowIndex
           ? { ...row, [columnId]: value, updated_at: new Date() }
-          : row
-      )
-    );
-  };
+          : row,
+      ),
+    )
+  }
 
-  const openModal = (field: "description" | "feedback", index: number) => {
-    setCurrentField(field);
-    setCurrentIndex(index);
-    setCurrentText(data[index][field]);
-    setIsModalOpen(true);
-  };
+  const openModal = (field: 'description' | 'feedback', index: number) => {
+    setCurrentField(field)
+    setCurrentIndex(index)
+    setCurrentText(data[index][field])
+    setIsModalOpen(true)
+  }
 
   const handleModalSubmit = () => {
-    if (currentIndex === -1) return;
-    handleUpdateData(currentIndex, currentField, currentText);
-    setIsModalOpen(false);
-  };
+    if (currentIndex === -1) return
+    handleUpdateData(currentIndex, currentField, currentText)
+    setIsModalOpen(false)
+  }
 
   if (isLoading) {
     return (
@@ -118,7 +116,7 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -138,7 +136,7 @@ export function Dashboard() {
           </button>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -178,7 +176,7 @@ export function Dashboard() {
         </Dialog>
       </div>
     </div>
-  );
+  )
 }
 
-export default Dashboard;
+export default Dashboard

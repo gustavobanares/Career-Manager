@@ -15,6 +15,7 @@ import { AxiosError } from 'axios'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { NavLink, useNavigate } from 'react-router-dom'
+import cvVector from '../../../assets/cv-vector.png'
 
 export interface SignUpProps {
   email: string
@@ -55,9 +56,15 @@ export function SignUp() {
   }
 
   return (
-    <main className="flex w-full h-screen justify-center items-center">
-      <form onSubmit={handleSignUp}>
-        <Card>
+    <main className="flex w-full h-screen justify-around items-center">
+      <div className=" h-full w-full flex justify-center items-center">
+        <img src={cvVector} alt="guy-holding-a-cv" className="max-h-3/5" />
+      </div>
+      <form
+        onSubmit={handleSignUp}
+        className="max-w-3xl w-full items-center flex justify-center"
+      >
+        <Card className="w-3/7">
           <CardHeader>
             <CardTitle className="text-xl font-bold tracking-tight">
               Sign-up
