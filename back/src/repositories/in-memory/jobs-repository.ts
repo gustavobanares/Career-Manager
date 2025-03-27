@@ -6,6 +6,12 @@ import { UpdateJobUseCaseRequest } from '@/use-cases/update-job'
 export class InMemoryJobsRepository implements JobsRepository {
   public items: Job[] = []
 
+  async findManyByUserId(userId: string): Promise<Job[]> {
+    const jobs = this.items.filter((item) => item.userId === userId)
+
+    return jobs
+  }
+
   async create({
     companyName,
     description,
