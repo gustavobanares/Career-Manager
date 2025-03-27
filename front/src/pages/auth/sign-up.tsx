@@ -56,15 +56,15 @@ export function SignUp() {
   }
 
   return (
-    <main className="flex w-full h-screen justify-around items-center">
-      <div className=" h-full w-full flex justify-center items-center">
-        <img src={cvVector} alt="guy-holding-a-cv" className="max-h-3/5" />
+    <main className="md:flex w-full h-screen justify-around items-center">
+      <div className=" h-full w-full flex justify-center items-center max-h-1/2 md:max-h-4/5">
+        <img src={cvVector} alt="guy-holding-a-cv" className="max-h-4/5" />
       </div>
       <form
         onSubmit={handleSignUp}
         className="max-w-3xl w-full items-center flex justify-center"
       >
-        <Card className="w-3/7">
+        <Card className="md:w-3/7 w-5/7">
           <CardHeader>
             <CardTitle className="text-xl font-bold tracking-tight">
               Sign-up
