@@ -21,6 +21,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   updateData: (rowIndex: number, columnId: string, value: any) => void
   openModal: (field: 'description' | 'feedback', index: number) => void
+  deleteJob: (jobId: string) => void // Novo prop para deleção
 }
 
 export function DataTable<TData, TValue>({
@@ -28,6 +29,7 @@ export function DataTable<TData, TValue>({
   data,
   updateData,
   openModal,
+  deleteJob, // Adicionar ao destructuring
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
@@ -36,6 +38,7 @@ export function DataTable<TData, TValue>({
     meta: {
       updateData,
       openModal,
+      deleteJob, // Adicionar ao meta
     },
   })
 
@@ -60,6 +63,8 @@ export function DataTable<TData, TValue>({
                   </TableHead>
                 )
               })}
+              {/* Remova essa linha duplicada de "Ações" */}
+              {/* <TableHead>Ações</TableHead> */}
             </TableRow>
           ))}
         </TableHeader>
@@ -78,12 +83,17 @@ export function DataTable<TData, TValue>({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
+                {/* Coluna de ações */}
+                <TableCell></TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+              <TableCell
+                colSpan={columns.length + 1}
+                className="h-24 text-center"
+              >
+                Nenhum resultado encontrado.
               </TableCell>
             </TableRow>
           )}
