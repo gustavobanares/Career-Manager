@@ -11,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { Trash2 } from 'lucide-react'
 
 // Tipo dos dados
 export type Payment = {
@@ -29,15 +31,20 @@ const truncateText = (text: string, maxLength: number = 50) => {
   return text.length > maxLength ? text.slice(0, maxLength) + '...' : text
 }
 
+// Mapeamento de cores para status
+const statusColorMap = {
+  applied: 'blue',
+  interviewing: 'yellow',
+  offered: 'green',
+  rejected: 'red',
+  accepted: 'purple',
+}
+
 // Definição das colunas da tabela
 export const columns: ColumnDef<Payment>[] = [
   {
-    accessorKey: 'id',
-    header: 'ID',
-  },
-  {
     accessorKey: 'companyName',
-    header: 'Company Name',
+    header: 'Company',
   },
   {
     accessorKey: 'status',
@@ -52,21 +59,35 @@ export const columns: ColumnDef<Payment>[] = [
       ]
 
       const handleStatusChange = (newStatus: string) => {
-        // Use the table's updateData method passed from meta
         table.options.meta?.updateData?.(row.index, 'status', newStatus)
       }
 
       return (
         <Select value={row.original.status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select status" />
+            <SelectValue>
+              <Badge
+                variant="outline"
+                color={statusColorMap[row.original.status]}
+              >
+                {row.original.status.charAt(0).toUpperCase() +
+                  row.original.status.slice(1)}
+              </Badge>
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectLabel>Status</SelectLabel>
               {statusOptions.map((status) => (
                 <SelectItem key={status} value={status}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  <Badge
+                    variant="outline"
+                    color={
+                      statusColorMap[status as keyof typeof statusColorMap]
+                    }
+                  >
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </Badge>
                 </SelectItem>
               ))}
             </SelectGroup>
@@ -97,7 +118,7 @@ export const columns: ColumnDef<Payment>[] = [
         className="cursor-pointer text-blue-500 overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]"
         onClick={() => table.options.meta?.openModal?.('feedback', row.index)}
       >
-        {truncateText(row.original.feedback)}
+        {truncateText(row.original.feedback || 'Sem feedback')}
       </div>
     ),
   },
@@ -109,26 +130,48 @@ export const columns: ColumnDef<Payment>[] = [
         href={row.original.link}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-500 hover:underline"
+        className="text-blue-500 hover:underline truncate block max-w-[200px]"
       >
-        {row.original.link}
+        {truncateText(row.original.link, 30)}
       </a>
     ),
   },
   {
     accessorKey: 'created_at',
-    header: 'Created',
+    header: 'Created at',
     cell: ({ row }) => {
       const date = new Date(row.original.created_at)
-      return date.toLocaleDateString('pt-BR') // Formato DD/MM/YYYY
+      return date.toLocaleDateString('pt-BR')
     },
   },
+
   {
     accessorKey: 'updated_at',
-    header: 'Updated',
+    header: 'Updated at',
     cell: ({ row }) => {
       const date = new Date(row.original.updated_at)
       return date.toLocaleDateString('pt-BR')
+    },
+  },
+
+  {
+    id: 'actions',
+    header: 'Actions',
+    cell: ({ row, table }) => {
+      const handleDelete = () => {
+        // Instead of window.confirm, use the deleteJob method directly
+        // to trigger the modal in the parent component
+        table.options.meta?.deleteJob?.(row.original.id)
+      }
+
+      return (
+        <button
+          onClick={handleDelete}
+          className="text-red-500 hover:text-red-700 transition-colors"
+        >
+          <Trash2 className="h-5 w-5 cursor-pointer" />
+        </button>
+      )
     },
   },
 ]
