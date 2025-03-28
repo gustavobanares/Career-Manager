@@ -1,3 +1,4 @@
+import { ResourceNotFoundError } from '@/errors/resource-not-found'
 import { JobsRepository } from '@/repositories/jobs-repository'
 import { Job } from '@prisma/client'
 
@@ -18,7 +19,7 @@ export class GetJobUseCase {
     const job = await this.jobsRepository.findById(jobId)
 
     if (!job) {
-      throw new Error('Job not found')
+      throw new ResourceNotFoundError()
     }
 
     return {

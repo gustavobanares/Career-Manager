@@ -1,4 +1,4 @@
-'use client'
+/*este codigo utilizou ajuda de IA */
 
 import { useState, useEffect } from 'react'
 import { Payment, columns } from './columns'
@@ -23,6 +23,7 @@ type JobData = Payment & {
   application_status?: string
 }
 
+
 export function Dashboard() {
   const [data, setData] = useState<Payment[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -37,7 +38,6 @@ export function Dashboard() {
   )
   const [currentIndex, setCurrentIndex] = useState<number>(-1)
   const [jobToDelete, setJobToDelete] = useState<string | null>(null)
-
   const [novoJob, setNovoJob] = useState({
     companyName: '',
     status: 'applied',
@@ -73,6 +73,7 @@ export function Dashboard() {
         err instanceof Error ? err.message : 'Ocorreu um erro inesperado',
       )
       setIsLoading(false)
+
     }
   }
 
@@ -214,6 +215,7 @@ export function Dashboard() {
             Add new job
           </Button>
         </div>
+        
         <DataTable
           columns={columns}
           data={data}
