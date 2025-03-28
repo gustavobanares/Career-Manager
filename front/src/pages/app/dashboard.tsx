@@ -1,5 +1,3 @@
-/*este codigo utilizou ajuda de IA */
-
 import { useState, useEffect } from 'react'
 import { Payment, columns } from './columns'
 import { DataTable } from './data-table'
@@ -22,7 +20,6 @@ import { PlusCircle } from 'lucide-react'
 type JobData = Payment & {
   application_status?: string
 }
-
 
 export function Dashboard() {
   const [data, setData] = useState<Payment[]>([])
@@ -73,7 +70,6 @@ export function Dashboard() {
         err instanceof Error ? err.message : 'Ocorreu um erro inesperado',
       )
       setIsLoading(false)
-
     }
   }
 
@@ -118,10 +114,10 @@ export function Dashboard() {
         ),
       )
 
-      toast.success('Job atualizado com sucesso!')
+      toast.success('Job updated successfully!')
     } catch (error) {
-      console.error('Erro de atualização:', error)
-      toast.error('Erro ao atualizar job')
+      console.error('Error of updating:', error)
+      toast.error('Error update job')
     }
   }
 
@@ -141,19 +137,19 @@ export function Dashboard() {
       // Remove job from local state
       setData((prev) => prev.filter((job) => job.id !== jobToDelete))
 
-      toast.success('Job removido com sucesso!')
+      toast.success('Job removed successfully!')
 
       // Close the confirmation dialog
       setIsDeleteConfirmationOpen(false)
       setJobToDelete(null)
     } catch (error) {
-      console.error('Erro de exclusão completo:', error)
-      console.error('Detalhes do erro:', error.response?.data)
-      toast.error('Erro ao remover job')
+      console.error('Error of exclusion complet:', error)
+      console.error('Details of error:', error.response?.data)
+      toast.error('Error to remove a job')
     }
   }
 
-  const handleCreateNewJob = async () => {
+  async function handleCreateNewJob() {
     try {
       // Prepare payload with all necessary fields
       const payload = {
@@ -163,18 +159,10 @@ export function Dashboard() {
 
       const response = await api.post('/jobs', payload)
 
-      // Update local state with new job
-      setData((prev) => [
-        ...prev,
-        {
-          ...response.data,
-          created_at: new Date(),
-          updated_at: new Date(),
-          status: novoJob.status.toLowerCase(),
-        },
-      ])
+      // Immediately fetch fresh data after creating a new job
+      await fetchData()
 
-      // Close modal and clear form
+      // Reset form and close modal
       setIsNovoJobModalOpen(false)
       setNovoJob({
         companyName: '',
@@ -184,11 +172,11 @@ export function Dashboard() {
         application_status: 'APPLIED',
       })
 
-      toast.success('Novo job adicionado com sucesso!')
+      toast.success('New job added successfully!')
     } catch (error) {
-      console.error('Erro ao criar novo job:', error)
-      toast.error('Erro ao criar novo job')
-      console.log('Detalhes do erro:', error.response?.data)
+      console.error('Error to create a new job:', error)
+      toast.error('Error to create a new job')
+      console.log('Details of error:', error.response?.data)
     }
   }
 
@@ -201,6 +189,9 @@ export function Dashboard() {
   useEffect(() => {
     fetchData()
   }, [])
+
+  if (isLoading) return <div>Carregando...</div>
+  if (error) return <div>Erro: {error}</div>
 
   return (
     <div className="flex justify-center items-center min-h-screen w-full">
@@ -215,7 +206,7 @@ export function Dashboard() {
             Add new job
           </Button>
         </div>
-        
+
         <DataTable
           columns={columns}
           data={data}
@@ -224,6 +215,7 @@ export function Dashboard() {
           deleteJob={confirmDeleteJob}
         />
 
+        {/* Delete Confirmation Modal */}
         <Dialog
           open={isDeleteConfirmationOpen}
           onOpenChange={setIsDeleteConfirmationOpen}
@@ -258,15 +250,15 @@ export function Dashboard() {
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                Editar{' '}
-                {currentField === 'description' ? 'Descrição' : 'Feedback'}
+                Edit{' '}
+                {currentField === 'description' ? 'Description' : 'Feedback'}
               </DialogTitle>
-              <DialogDescription>Faça suas alterações abaixo</DialogDescription>
+              <DialogDescription>Make your changes below</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="text" className="text-right">
-                  {currentField === 'description' ? 'Descrição' : 'Feedback'}
+                  {currentField === 'description' ? 'Description' : 'Feedback'}
                 </Label>
                 <Input
                   id="text"
@@ -279,11 +271,11 @@ export function Dashboard() {
             <DialogFooter>
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
-                  Cancelar
+                  Cancel
                 </Button>
               </DialogClose>
               <Button type="submit" onClick={handleModalSubmit}>
-                Salvar
+                Save
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -293,15 +285,15 @@ export function Dashboard() {
         <Dialog open={isNovoJobModalOpen} onOpenChange={setIsNovoJobModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Adicionar Novo Job</DialogTitle>
+              <DialogTitle>Add New Job</DialogTitle>
               <DialogDescription>
-                Preencha os detalhes do novo job
+                Fill in the details of the new job
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="companyName" className="text-right">
-                  Name of company
+                  Company Name
                 </Label>
                 <Input
                   id="companyName"
@@ -331,8 +323,8 @@ export function Dashboard() {
                   className="col-span-3 p-2 border rounded"
                 >
                   <option value="applied">Applied</option>
-                  <option value="interview">Interviewing</option>
-                  <option value="offer">Offered</option>
+                  <option value="interviewing">Interviewing</option>
+                  <option value="offered">Offered</option>
                   <option value="rejected">Rejected</option>
                   <option value="accepted">Accepted</option>
                 </select>
@@ -385,7 +377,7 @@ export function Dashboard() {
                 type="submit"
                 onClick={handleCreateNewJob}
               >
-                Add job
+                Add Job
               </Button>
             </DialogFooter>
           </DialogContent>
