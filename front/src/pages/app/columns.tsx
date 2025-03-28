@@ -25,7 +25,8 @@ export type Payment = {
 }
 
 // Função para truncar texto
-const truncateText = (text: string, maxLength: number = 50) => {
+const truncateText = (text: string | undefined, maxLength: number = 50) => {
+  if (!text) return ''
   return text.length > maxLength ? text.slice(0, maxLength) + '...' : text
 }
 
@@ -104,7 +105,7 @@ export const columns: ColumnDef<Payment>[] = [
           table.options.meta?.openModal?.('description', row.index)
         }
       >
-        {truncateText(row.original.description)}
+        {truncateText(row.original.description || '')}
       </div>
     ),
   },
@@ -116,7 +117,7 @@ export const columns: ColumnDef<Payment>[] = [
         className="cursor-pointer text-blue-500 overflow-hidden text-ellipsis whitespace-nowrap max-w-[200px]"
         onClick={() => table.options.meta?.openModal?.('feedback', row.index)}
       >
-        {truncateText(row.original.feedback || 'Sem feedback')}
+        {truncateText(row.original.feedback || 'No feedback')}
       </div>
     ),
   },
@@ -142,7 +143,6 @@ export const columns: ColumnDef<Payment>[] = [
       return date.toLocaleDateString('pt-BR')
     },
   },
-
   {
     accessorKey: 'updated_at',
     header: 'Updated at',
@@ -151,14 +151,11 @@ export const columns: ColumnDef<Payment>[] = [
       return date.toLocaleDateString('pt-BR')
     },
   },
-
   {
     id: 'actions',
     header: 'Actions',
     cell: ({ row, table }) => {
       const handleDelete = () => {
-        // Instead of window.confirm, use the deleteJob method directly
-        // to trigger the modal in the parent component
         table.options.meta?.deleteJob?.(row.original.id)
       }
 
