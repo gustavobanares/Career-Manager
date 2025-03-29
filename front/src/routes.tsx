@@ -1,33 +1,36 @@
-
-import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { Dashboard } from './pages/app/dashboard'
-import { SignIn } from './pages/auth/sign-in'
-import { AppLayout } from './layout/app'
-import { SignUp } from './pages/auth/sign-up'
+import { createBrowserRouter, Navigate } from "react-router-dom";
+import { Dashboard } from "./pages/app/dashboard";
+import { SignIn } from "./pages/auth/sign-in";
+import { AppLayout } from "./layout/app";
+import { SignUp } from "./pages/auth/sign-up";
+import CVManager from "./pages/app/cv-manager";
 
 export const publicRoutes = createBrowserRouter([
   {
-    path: '/sign-up',
+    path: "/sign-up",
     element: <SignUp />,
   },
   {
-    path: '/sign-in',
+    path: "/sign-in",
     element: <SignIn />,
   },
   {
-    path: '*',
+    path: "*",
     element: <Navigate to="/sign-in" />,
   },
-])
+]);
 
 export const privateRoutes = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <AppLayout />,
-    children: [{ path: '/', element: <Dashboard /> }],
+    children: [
+      { path: "/", element: <Dashboard /> },
+      { path: "/cv-manager", element: <CVManager /> },
+    ],
   },
   {
-    path: '*',
+    path: "*",
     element: <Navigate to="/" />,
   },
-])
+]);
