@@ -138,16 +138,15 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
   };
 
   return (
-    <div className="cv-manager">
-      <ReactQuill
-        ref={editorRef}
-        value={content}
-        onChange={setContent}
-        modules={modules}
-        placeholder="Start building your CV here..."
-        className="h-[600px]"
-      />
-
+    <div className="cv-manager flex-col">
+      <div className="text-editor ">
+        <ReactQuill
+          ref={editorRef}
+          value={content}
+          onChange={setContent}
+          modules={modules}
+        />
+      </div>
       <div className="mt-4 flex space-x-4">
         <button
           onClick={handleSave}
