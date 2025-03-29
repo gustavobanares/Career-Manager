@@ -194,7 +194,7 @@ export function Dashboard() {
   if (error) return <div>Erro: {error}</div>
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full">
+    <div className="flex justify-center items-center h-full w-full">
       <div className="container mx-auto py-10 w-full max-w-[90%]">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold">Career Manager</h1>

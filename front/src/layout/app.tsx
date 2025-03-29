@@ -10,8 +10,8 @@ export function AppLayout() {
           <SideBar />
         </div>
 
-        <div className="w-full h-full">
-          <div className="h-1/10 hidden md:block">
+        <div className="w-full">
+          <div className="h-1/10 hidden md:block fixed">
             <Header />
           </div>
 

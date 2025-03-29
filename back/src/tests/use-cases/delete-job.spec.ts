@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryJobsRepository } from '@/repositories/in-memory/jobs-repository'
-import { DeleteJobUseCase } from './delete-job'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/users-repository'
 import { UnauthorizedError } from '@/errors/unauthorized'
+import { DeleteJobUseCase } from '@/use-cases/delete-job'
 
 let inMemoryJobsRepository: InMemoryJobsRepository
 let inMemoryUsersRepository: InMemoryUsersRepository

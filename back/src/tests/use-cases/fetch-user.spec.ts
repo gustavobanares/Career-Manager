@@ -1,6 +1,6 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/users-repository'
+import { FetchUserUseCase } from '@/use-cases/fetch-user'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { FetchUserUseCase } from './fetch-user'
 
 let inMemoryUsersRepository: InMemoryUsersRepository
 let sut: FetchUserUseCase

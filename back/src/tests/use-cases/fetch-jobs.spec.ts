@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryJobsRepository } from '@/repositories/in-memory/jobs-repository'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/users-repository'
-import { FetchJobsHistoryUseCase } from './fetch-jobs'
+import { FetchJobsHistoryUseCase } from '@/use-cases/fetch-jobs'
 
 let inMemoryJobsRepository: InMemoryJobsRepository
 let inMemoryUsersRepository: InMemoryUsersRepository
