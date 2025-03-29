@@ -27,9 +27,28 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
 
   // Export to PDF function with rich text preservation
   const exportToPDF = () => {
-    if (!contentRef.current) return;
+    const quillEditor = editorRef.current?.getEditor();
+    if (!quillEditor) return;
 
-    const element = contentRef.current;
+    // Create a temporary div for the cleaned content
+    const contentDiv = document.createElement("div");
+
+    // Deep clone the content, preserving all styles
+    const clonedContent = quillEditor.root.cloneNode(true) as HTMLElement;
+
+    // Add a style element for preserving headers
+    const styleEl = document.createElement("style");
+    styleEl.textContent = `
+      h1 { font-size: 2rem !important; margin-bottom: 0.5rem; }
+      h2 { font-size: 1.5rem !important; margin-bottom: 0.5rem; }
+      h3 { font-size: 1.25rem !important; margin-bottom: 0.5rem; }
+      p { margin-bottom: 1rem; }
+    `;
+
+    // Append both the style and content
+    contentDiv.appendChild(styleEl);
+    contentDiv.appendChild(clonedContent);
+
     const opt = {
       margin: 1,
       filename: `cv-${userId || "document"}.pdf`,
@@ -45,15 +64,8 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
       },
     };
 
-    // Convert the HTML to PDF
-    html2pdf().set(opt).from(element).save();
-  };
-
-  // Handle CV Save
-  const handleSave = () => {
-    if (onSave) {
-      onSave(content);
-    }
+    // Use the cleaned content div for PDF generation
+    html2pdf().set(opt).from(contentDiv).save();
   };
 
   return (
@@ -70,10 +82,7 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
       </div>
 
       <div className="mt-4 flex space-x-4">
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">
           Save CV
         </button>
         <button
