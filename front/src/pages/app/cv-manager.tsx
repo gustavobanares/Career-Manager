@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import html2pdf from "html2pdf.js";
+import { Button } from "@/components/ui/Button";
 
 interface CVManagerProps {
   userId?: string;
@@ -147,19 +148,13 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
           modules={modules}
         />
       </div>
-      <div className="mt-4 flex space-x-4">
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
-        >
+      <div className="mt-2 mx-4 flex space-x-4">
+        <Button onClick={handleSave} className="px-4 py-2 text-white rounded">
           Save CV
-        </button>
-        <button
-          onClick={exportToPDF}
-          className="px-4 py-2 bg-green-500 text-white rounded"
-        >
+        </Button>
+        <Button onClick={exportToPDF} className="px-4 py-2 text-white rounded">
           Export to PDF
-        </button>
+        </Button>
       </div>
     </div>
   );
