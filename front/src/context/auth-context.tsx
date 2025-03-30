@@ -46,8 +46,9 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
 
     async function fetchUser() {
       try {
-        const { data } = await api.get<User>('/user')
-        setUser(data)
+        const { data } = await api.get('/user')
+        const user = data.user
+        setUser(user)
       } catch {
         signOut()
       }

@@ -1,7 +1,11 @@
+import { ResourceNotFoundError } from '@/errors/resource-not-found'
+import { UnauthorizedError } from '@/errors/unauthorized'
 import { JobsRepository } from '@/repositories/jobs-repository'
+import { UsersRepository } from '@/repositories/users-repository'
 import { Job, JobStatus } from '@prisma/client'
 
-interface UpdateJobUseCaseRequest {
+export interface UpdateJobUseCaseRequest {
+  userId: string
   jobId: string
   companyName?: string
   application_status?: JobStatus
@@ -10,31 +14,43 @@ interface UpdateJobUseCaseRequest {
   link?: string
 }
 
-interface UpdateJobUseCaseResponse {
+export interface UpdateJobUseCaseResponse {
   job: Job
 }
 
 export class UpdateJobUseCase {
-  constructor(private jobsRepository: JobsRepository) {}
+  constructor(
+    private jobsRepository: JobsRepository,
+    private usersRepository: UsersRepository,
+  ) {}
 
   async execute({
+    userId,
     jobId,
     companyName,
-    // eslint-disable-next-line
     application_status,
     description,
     feedback,
     link,
   }: UpdateJobUseCaseRequest): Promise<UpdateJobUseCaseResponse> {
+    const user = await this.usersRepository.findById(userId)
+
+    if (!user) {
+      throw new ResourceNotFoundError()
+    }
+
     const jobExists = await this.jobsRepository.findById(jobId)
 
     if (!jobExists) {
-      throw new Error('Job not found')
+      throw new ResourceNotFoundError()
+    }
+
+    if (user.id !== jobExists.userId) {
+      throw new UnauthorizedError()
     }
 
     const job = await this.jobsRepository.update(jobId, {
       companyName,
-      // eslint-disable-next-line
       application_status,
       description,
       feedback,

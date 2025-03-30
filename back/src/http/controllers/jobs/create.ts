@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { CreateJobUseCase } from '../../../use-cases/create-job'
 import { PrismaJobsRepository } from '../../../repositories/prisma/prisma-jobs-repository'
+import { PrismaUsersRepository } from '@/repositories/prisma/prisma-users-repository'
 
 export async function create(request: FastifyRequest, reply: FastifyReply) {
   const createJobBodySchema = z.object({
@@ -27,7 +28,8 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
   }
 
   const jobsRepository = new PrismaJobsRepository()
-  const createJobUseCase = new CreateJobUseCase(jobsRepository)
+  const usersRepository = new PrismaUsersRepository()
+  const createJobUseCase = new CreateJobUseCase(jobsRepository, usersRepository)
 
   await createJobUseCase.execute({
     companyName,

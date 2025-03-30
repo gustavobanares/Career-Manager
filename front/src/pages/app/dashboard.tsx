@@ -1,8 +1,6 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { Payment, columns } from "./columns";
-import { DataTable } from "./data-table";
+import { useState, useEffect } from 'react'
+import { Payment, columns } from './columns'
+import { DataTable } from './data-table'
 import {
   Dialog,
   DialogContent,
@@ -11,174 +9,382 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { api } from '@/lib/axios'
+import toast from 'react-hot-toast'
+import { PlusCircle } from 'lucide-react'
+
+type JobData = Payment & {
+  application_status?: string
+}
 
 export function Dashboard() {
-  const [data, setData] = useState<Payment[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentText, setCurrentText] = useState("");
-  const [currentField, setCurrentField] = useState<"description" | "feedback">(
-    "description"
-  );
-  const [currentIndex, setCurrentIndex] = useState<number>(-1);
+  const [data, setData] = useState<Payment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isNovoJobModalOpen, setIsNovoJobModalOpen] = useState(false)
+  const [isDeleteConfirmationOpen, setIsDeleteConfirmationOpen] =
+    useState(false)
+  const [currentText, setCurrentText] = useState('')
+  const [currentField, setCurrentField] = useState<'description' | 'feedback'>(
+    'description',
+  )
+  const [currentIndex, setCurrentIndex] = useState<number>(-1)
+  const [jobToDelete, setJobToDelete] = useState<string | null>(null)
+  const [novoJob, setNovoJob] = useState({
+    companyName: '',
+    status: 'applied',
+    description: '',
+    link: '',
+    application_status: 'APPLIED',
+  })
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        // Mock data for development/testing
-        const mockData: Payment[] = [
-          {
-            id: "1",
-            status: "interviewing",
-            companyName: "Itáu",
-            description: "Teste técnico",
-            feedback: "O recrutador gostou do meu portfólio",
-            link: "https://www.itau.com.br/",
-            created_at: new Date("2024-03-25T10:30:00Z"),
-            updated_at: new Date("2024-03-26T15:45:00Z"),
-          },
-          {
-            id: "2",
-            status: "applied",
-            companyName: "Bradesco",
-            description: "Vamos ver se tenho um retorno",
-            feedback: "Vaga muito boa",
-            link: "https://banco.bradesco/naocorrentista/index.shtm",
-            created_at: new Date("2024-03-20T08:15:00Z"),
-            updated_at: new Date("2024-03-22T11:00:00Z"),
-          },
-          {
-            id: "3",
-            status: "offered",
-            companyName: "Nubank",
-            description: "Estou analisando se é viável aceitar",
-            feedback: "Passei tranquilo no teste técnico",
-            link: "https://www.nubank.com.br/",
-            created_at: new Date("2024-03-18T14:00:00Z"),
-            updated_at: new Date("2024-03-21T09:30:00Z"),
-          },
-        ];
+  async function fetchData() {
+    try {
+      const response = await api.get<JobData[]>('/jobs')
 
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      const jobsData = Array.isArray(response.data)
+        ? response.data
+        : response.data.jobs || [response.data]
 
-        setData(mockData);
-        setIsLoading(false);
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError(
-          err instanceof Error ? err.message : "An unexpected error occurred"
-        );
-        setIsLoading(false);
-      }
-    }
+      const formattedData = jobsData.map((job: JobData) => ({
+        id: job.id,
+        companyName: job.companyName,
+        status: job.application_status?.toLowerCase() || 'unknown',
+        description: job.description || '',
+        feedback: job.feedback || '',
+        link: job.link || '',
+        created_at: job.created_at ? new Date(job.created_at) : new Date(),
+        updated_at: job.updated_at ? new Date(job.updated_at) : new Date(),
+      }))
 
-    fetchData();
-  }, []);
-
-  const handleUpdateData = (rowIndex: number, columnId: string, value: any) => {
-    setData((prev) =>
-      prev.map((row, index) =>
-        index === rowIndex
-          ? { ...row, [columnId]: value, updated_at: new Date() }
-          : row
+      setData(formattedData)
+      setIsLoading(false)
+    } catch (err) {
+      console.error('Erro na busca:', err)
+      setError(
+        err instanceof Error ? err.message : 'Ocorreu um erro inesperado',
       )
-    );
-  };
+      setIsLoading(false)
+    }
+  }
 
-  const openModal = (field: "description" | "feedback", index: number) => {
-    setCurrentField(field);
-    setCurrentIndex(index);
-    setCurrentText(data[index][field]);
-    setIsModalOpen(true);
-  };
+  const openModal = (field: 'description' | 'feedback', index: number) => {
+    setCurrentField(field)
+    setCurrentIndex(index)
+    setCurrentText(data[index][field])
+    setIsModalOpen(true)
+  }
+
+  const handleUpdateData = async (
+    rowIndex: number,
+    columnId: string,
+    value: any,
+  ) => {
+    try {
+      const jobToUpdate = data[rowIndex]
+
+      const updatePayload = {
+        ...jobToUpdate,
+        [columnId]: value,
+        application_status:
+          columnId === 'status'
+            ? value.toUpperCase()
+            : jobToUpdate.status.toUpperCase(),
+      }
+
+      // Update API
+      await api.put(`/jobs/${jobToUpdate.id}`, updatePayload)
+
+      // Update local state
+      setData((prev) =>
+        prev.map((job, index) =>
+          index === rowIndex
+            ? {
+                ...job,
+                [columnId]: value,
+                status: columnId === 'status' ? value : job.status,
+                updated_at: new Date(),
+              }
+            : job,
+        ),
+      )
+
+      toast.success('Job updated successfully!')
+    } catch (error) {
+      console.error('Error of updating:', error)
+      toast.error('Error update job')
+    }
+  }
+
+  const confirmDeleteJob = (jobId: string) => {
+    setJobToDelete(jobId)
+    setIsDeleteConfirmationOpen(true)
+  }
+
+  const handleDeleteJob = async () => {
+    if (!jobToDelete) return
+
+    try {
+      console.log('Tentando excluir job:', jobToDelete)
+      const response = await api.post(`/jobs/${jobToDelete}`)
+      console.log('Resposta da exclusão:', response)
+
+      // Remove job from local state
+      setData((prev) => prev.filter((job) => job.id !== jobToDelete))
+
+      toast.success('Job removed successfully!')
+
+      // Close the confirmation dialog
+      setIsDeleteConfirmationOpen(false)
+      setJobToDelete(null)
+    } catch (error) {
+      console.error('Error of exclusion complet:', error)
+      console.error('Details of error:', error.response?.data)
+      toast.error('Error to remove a job')
+    }
+  }
+
+  async function handleCreateNewJob() {
+    try {
+      // Prepare payload with all necessary fields
+      const payload = {
+        ...novoJob,
+        application_status: novoJob.status.toUpperCase(),
+      }
+
+      const response = await api.post('/jobs', payload)
+
+      // Immediately fetch fresh data after creating a new job
+      await fetchData()
+
+      // Reset form and close modal
+      setIsNovoJobModalOpen(false)
+      setNovoJob({
+        companyName: '',
+        status: 'applied',
+        description: '',
+        link: '',
+        application_status: 'APPLIED',
+      })
+
+      toast.success('New job added successfully!')
+    } catch (error) {
+      console.error('Error to create a new job:', error)
+      toast.error('Error to create a new job')
+      console.log('Details of error:', error.response?.data)
+    }
+  }
 
   const handleModalSubmit = () => {
-    if (currentIndex === -1) return;
-    handleUpdateData(currentIndex, currentField, currentText);
-    setIsModalOpen(false);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto py-10 flex justify-center items-center">
-        <div className="animate-pulse flex items-center space-x-4">
-          <div className="rounded-full bg-gray-300 h-12 w-12"></div>
-          <div className="flex-1 space-y-4 py-1">
-            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-            <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-4">
-                <div className="h-4 bg-gray-300 rounded col-span-2"></div>
-                <div className="h-4 bg-gray-300 rounded col-span-1"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    if (currentIndex === -1) return
+    handleUpdateData(currentIndex, currentField, currentText)
+    setIsModalOpen(false)
   }
 
-  if (error) {
-    return (
-      <div className="container mx-auto py-10 flex justify-center items-center">
-        <div
-          className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <strong className="font-bold">Error: </strong>
-          <span className="block sm:inline">{error}</span>
-          <button
-            onClick={() => window.location.reload()}
-            className="ml-4 mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-300"
-          >
-            Retry
-          </button>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  if (isLoading) return <div>Carregando...</div>
+  if (error) return <div>Erro: {error}</div>
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full">
+    <div className="flex justify-center items-center h-full w-full">
       <div className="container mx-auto py-10 w-full max-w-[90%]">
-        <h1 className="text-2xl font-bold mb-4 text-center">
-          Job Application Tracker
-        </h1>
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold">Career Manager</h1>
+          <Button
+            className="cursor-pointer"
+            onClick={() => setIsNovoJobModalOpen(true)}
+          >
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add new job
+          </Button>
+        </div>
+
         <DataTable
           columns={columns}
           data={data}
           updateData={handleUpdateData}
           openModal={openModal}
+          deleteJob={confirmDeleteJob}
         />
 
-        {/* Modal for editing description or feedback */}
+        {/* Delete Confirmation Modal */}
+        <Dialog
+          open={isDeleteConfirmationOpen}
+          onOpenChange={setIsDeleteConfirmationOpen}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm exclusion</DialogTitle>
+              <DialogDescription>
+                Are you sure want to delete this job? This action cannot be
+                undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button className="cursor-pointer" variant="secondary">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                className="cursor-pointer"
+                variant="destructive"
+                onClick={handleDeleteJob}
+              >
+                Yes, exclude
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal for editing description/feedback */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Edit {currentField}</DialogTitle>
+              <DialogTitle>
+                Edit{' '}
+                {currentField === 'description' ? 'Description' : 'Feedback'}
+              </DialogTitle>
+              <DialogDescription>Make your changes below</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="text" className="text-right">
+                  {currentField === 'description' ? 'Description' : 'Feedback'}
+                </Label>
+                <Input
+                  id="text"
+                  value={currentText}
+                  onChange={(e) => setCurrentText(e.target.value)}
+                  className="col-span-3"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" onClick={handleModalSubmit}>
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal for creating new job */}
+        <Dialog open={isNovoJobModalOpen} onOpenChange={setIsNovoJobModalOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Job</DialogTitle>
               <DialogDescription>
-                You can edit the {currentField} here.
+                Fill in the details of the new job
               </DialogDescription>
             </DialogHeader>
-            <textarea
-              value={currentText}
-              onChange={(e) => setCurrentText(e.target.value)}
-              className="w-full h-32 p-2 border border-gray-300 rounded"
-            />
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="companyName" className="text-right">
+                  Company Name
+                </Label>
+                <Input
+                  id="companyName"
+                  value={novoJob.companyName}
+                  onChange={(e) =>
+                    setNovoJob((prev) => ({
+                      ...prev,
+                      companyName: e.target.value,
+                    }))
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="status" className="text-right">
+                  Status
+                </Label>
+                <select
+                  id="status"
+                  value={novoJob.status}
+                  onChange={(e) =>
+                    setNovoJob((prev) => ({
+                      ...prev,
+                      status: e.target.value,
+                    }))
+                  }
+                  className="col-span-3 p-2 border rounded"
+                >
+                  <option value="applied">Applied</option>
+                  <option value="interviewing">Interviewing</option>
+                  <option value="offered">Offered</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="accepted">Accepted</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="description" className="text-right">
+                  Description
+                </Label>
+                <Input
+                  id="description"
+                  value={novoJob.description}
+                  onChange={(e) =>
+                    setNovoJob((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="link" className="text-right">
+                  Link
+                </Label>
+                <Input
+                  id="link"
+                  value={novoJob.link}
+                  onChange={(e) =>
+                    setNovoJob((prev) => ({
+                      ...prev,
+                      link: e.target.value,
+                    }))
+                  }
+                  className="col-span-3"
+                />
+              </div>
+            </div>
             <DialogFooter>
-              <Button onClick={handleModalSubmit}>Save</Button>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button
+                  className="cursor-pointer"
+                  type="button"
+                  variant="secondary"
+                >
+                  Cancel
+                </Button>
               </DialogClose>
+              <Button
+                className="cursor-pointer"
+                type="submit"
+                onClick={handleCreateNewJob}
+              >
+                Add Job
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
     </div>
-  );
+  )
 }
 
-export default Dashboard;
+export default Dashboard

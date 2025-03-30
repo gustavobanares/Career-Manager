@@ -1,6 +1,6 @@
 import { User } from '@prisma/client'
 import { SignUpUseCaseRequest } from '../../use-cases/sign-up'
-import { UsersRepository } from '../users-repositories'
+import { UsersRepository } from '../users-repository'
 import { prisma } from '../../lib/prisma'
 
 export class PrismaUsersRepository implements UsersRepository {

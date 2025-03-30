@@ -6,6 +6,8 @@ import { z } from 'zod'
 export async function updateJob(request: FastifyRequest, reply: FastifyReply) {
   const updateJobUseCase = makeUpdateJobUseCase()
 
+  const userId = request.user.sub
+
   const paramsSchema = z.object({
     jobId: z.string().uuid(),
   })
@@ -23,6 +25,7 @@ export async function updateJob(request: FastifyRequest, reply: FastifyReply) {
 
   const { job } = await updateJobUseCase.execute({
     jobId,
+    userId,
     ...body,
   })
 

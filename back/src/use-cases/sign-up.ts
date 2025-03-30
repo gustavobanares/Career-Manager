@@ -1,5 +1,5 @@
 import { hash } from 'bcryptjs'
-import { UsersRepository } from '../repositories/users-repositories'
+import { UsersRepository } from '../repositories/users-repository'
 
 export interface SignUpUseCaseRequest {
   name: string

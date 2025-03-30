@@ -1,5 +1,5 @@
 import { compare } from 'bcryptjs'
-import { UsersRepository } from '../repositories/users-repositories'
+import { UsersRepository } from '../repositories/users-repository'
 import { User } from '@prisma/client'
 
 export interface SignInUseCaseRequest {
@@ -27,7 +27,7 @@ export class SignInUseCase {
     const doesPasswordMatch = await compare(password, user.password)
 
     if (!doesPasswordMatch) {
-      throw new Error('password does not match')
+      throw new Error('Password does not match')
     }
 
     return { user }
