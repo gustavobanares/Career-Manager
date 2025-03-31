@@ -6,6 +6,12 @@ import { SignUpUseCaseRequest } from '@/use-cases/sign-up'
 export class InMemoryUsersRepository implements UsersRepository {
   public items: User[] = []
 
+  async saveCv(userId: string, data: string): Promise<void> {
+    const userIndex = await this.items.findIndex((item) => item.id === userId)
+
+    this.items[userIndex].cvData = data
+  }
+
   async findById(id: string): Promise<User | null> {
     const user = this.items.find((item) => item.id === id)
 
