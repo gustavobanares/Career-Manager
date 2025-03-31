@@ -14,7 +14,7 @@ app.register(fastifyJwt, {
 
 app.register(fastifyCors, {
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
 })
 
 app.register(userRoutes)

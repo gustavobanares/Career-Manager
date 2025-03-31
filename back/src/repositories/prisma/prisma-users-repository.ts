@@ -4,6 +4,17 @@ import { UsersRepository } from '../users-repository'
 import { prisma } from '../../lib/prisma'
 
 export class PrismaUsersRepository implements UsersRepository {
+  async saveCv(userId: string, data: string): Promise<void> {
+    await prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        cvData: data,
+      },
+    })
+  }
+
   async findById(userId: string): Promise<User | null> {
     const user = await prisma.user.findFirst({
       where: {

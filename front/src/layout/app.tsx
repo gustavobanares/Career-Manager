@@ -1,4 +1,3 @@
-import { Header } from '@/components/header'
 import { SideBar } from '@/components/sidebar'
 import { Outlet } from 'react-router-dom'
 
@@ -10,14 +9,8 @@ export function AppLayout() {
           <SideBar />
         </div>
 
-        <div className="w-full">
-          <div className="h-1/10 hidden md:block fixed">
-            <Header />
-          </div>
-
-          <div className="h-full">
-            <Outlet />
-          </div>
+        <div className="h-full w-full">
+          <Outlet />
         </div>
       </div>
     </>
