@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+/* este codigo utilizou ajuda de ia */
+
+import { useState, useEffect, useContext } from 'react'
 import { Payment, columns } from './columns'
 import { DataTable } from './data-table'
 import {
@@ -16,6 +18,11 @@ import { Label } from '@/components/ui/label'
 import { api } from '@/lib/axios'
 import toast from 'react-hot-toast'
 import { PlusCircle } from 'lucide-react'
+import { authContext } from '@/context/auth-context'
+import { Skeleton } from '@/components/ui/skeleton'
+import { toastSuccessStyle } from '@/lib/toast-success-style'
+import { toastErrorStyle } from '@/lib/toast-error-style'
+import { AxiosError } from 'axios'
 
 type JobData = Payment & {
   application_status?: string
@@ -42,6 +49,10 @@ export function Dashboard() {
     link: '',
     application_status: 'APPLIED',
   })
+  const { user } = useContext(authContext)
+
+  const firstUserName =
+    user?.name.slice(0, user?.name.indexOf(' ')) || user?.name
 
   async function fetchData() {
     try {
@@ -114,10 +125,10 @@ export function Dashboard() {
         ),
       )
 
-      toast.success('Job updated successfully!')
+      toast.success('Job updated successfully!', toastSuccessStyle)
     } catch (error) {
       console.error('Error of updating:', error)
-      toast.error('Error update job')
+      toast.error('Error update job', toastErrorStyle)
     }
   }
 
@@ -137,15 +148,17 @@ export function Dashboard() {
       // Remove job from local state
       setData((prev) => prev.filter((job) => job.id !== jobToDelete))
 
-      toast.success('Job removed successfully!')
+      toast.success('Job removed successfully!', toastSuccessStyle)
 
       // Close the confirmation dialog
       setIsDeleteConfirmationOpen(false)
       setJobToDelete(null)
     } catch (error) {
-      console.error('Error of exclusion complet:', error)
-      console.error('Details of error:', error.response?.data)
-      toast.error('Error to remove a job')
+      if (error instanceof AxiosError) {
+        console.error('Error of exclusion complet:', error)
+        console.error('Details of error:', error.response?.data)
+        toast.error('Error to remove a job', toastErrorStyle)
+      }
     }
   }
 
@@ -157,7 +170,7 @@ export function Dashboard() {
         application_status: novoJob.status.toUpperCase(),
       }
 
-      const response = await api.post('/jobs', payload)
+      await api.post('/jobs', payload)
 
       // Immediately fetch fresh data after creating a new job
       await fetchData()
@@ -172,11 +185,13 @@ export function Dashboard() {
         application_status: 'APPLIED',
       })
 
-      toast.success('New job added successfully!')
+      toast.success('New job added successfully!', toastSuccessStyle)
     } catch (error) {
-      console.error('Error to create a new job:', error)
-      toast.error('Error to create a new job')
-      console.log('Details of error:', error.response?.data)
+      if (error instanceof AxiosError) {
+        console.error('Error to create a new job:', error)
+        toast.error('Error to create a new job', toastErrorStyle)
+        console.log('Details of error:', error.response?.data)
+      }
     }
   }
 
@@ -190,200 +205,221 @@ export function Dashboard() {
     fetchData()
   }, [])
 
-  if (isLoading) return <div>Carregando...</div>
+  if (isLoading)
+    return (
+      <div className="flex items-center space-x-4 pl-20 w-full h-full animate-pulse">
+        <Skeleton className="h-18 w-18 rounded-full bg-gray-300" />
+        <div className="space-y-2">
+          <Skeleton className="h-6 w-[250px] bg-gray-300" />
+          <Skeleton className="h-6 w-[200px] bg-gray-300" />
+        </div>
+      </div>
+    )
   if (error) return <div>Erro: {error}</div>
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-full">
-      <div className="container mx-auto py-10 w-full max-w-[90%]">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Career Manager</h1>
-          <Button
-            className="cursor-pointer"
-            onClick={() => setIsNovoJobModalOpen(true)}
+    <>
+      <div className="items-center fixed flex w-full h-2/10">
+        <h1 className="pl-5 md:pl-20 text-2xl md:text-4xl">
+          Bem vindo(a), {firstUserName}!
+        </h1>
+      </div>
+      <div className="flex justify-center items-center h-full w-full">
+        <div className="container mx-auto py-10 w-full max-w-[90%]">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-bold">Career Manager</h1>
+            <Button
+              className="cursor-pointer"
+              onClick={() => setIsNovoJobModalOpen(true)}
+            >
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add new job
+            </Button>
+          </div>
+
+          <DataTable
+            columns={columns}
+            data={data}
+            updateData={handleUpdateData}
+            openModal={openModal}
+            deleteJob={confirmDeleteJob}
+          />
+
+          {/* Delete Confirmation Modal */}
+          <Dialog
+            open={isDeleteConfirmationOpen}
+            onOpenChange={setIsDeleteConfirmationOpen}
           >
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Add new job
-          </Button>
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={data}
-          updateData={handleUpdateData}
-          openModal={openModal}
-          deleteJob={confirmDeleteJob}
-        />
-
-        {/* Delete Confirmation Modal */}
-        <Dialog
-          open={isDeleteConfirmationOpen}
-          onOpenChange={setIsDeleteConfirmationOpen}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm exclusion</DialogTitle>
-              <DialogDescription>
-                Are you sure want to delete this job? This action cannot be
-                undone.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button className="cursor-pointer" variant="secondary">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button
-                className="cursor-pointer"
-                variant="destructive"
-                onClick={handleDeleteJob}
-              >
-                Yes, exclude
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Modal for editing description/feedback */}
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                Edit{' '}
-                {currentField === 'description' ? 'Description' : 'Feedback'}
-              </DialogTitle>
-              <DialogDescription>Make your changes below</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="text" className="text-right">
-                  {currentField === 'description' ? 'Description' : 'Feedback'}
-                </Label>
-                <Input
-                  id="text"
-                  value={currentText}
-                  onChange={(e) => setCurrentText(e.target.value)}
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="secondary">
-                  Cancel
-                </Button>
-              </DialogClose>
-              <Button type="submit" onClick={handleModalSubmit}>
-                Save
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Modal for creating new job */}
-        <Dialog open={isNovoJobModalOpen} onOpenChange={setIsNovoJobModalOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Job</DialogTitle>
-              <DialogDescription>
-                Fill in the details of the new job
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="companyName" className="text-right">
-                  Company Name
-                </Label>
-                <Input
-                  id="companyName"
-                  value={novoJob.companyName}
-                  onChange={(e) =>
-                    setNovoJob((prev) => ({
-                      ...prev,
-                      companyName: e.target.value,
-                    }))
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="status" className="text-right">
-                  Status
-                </Label>
-                <select
-                  id="status"
-                  value={novoJob.status}
-                  onChange={(e) =>
-                    setNovoJob((prev) => ({
-                      ...prev,
-                      status: e.target.value,
-                    }))
-                  }
-                  className="col-span-3 p-2 border rounded"
-                >
-                  <option value="applied">Applied</option>
-                  <option value="interviewing">Interviewing</option>
-                  <option value="offered">Offered</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="accepted">Accepted</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  Description
-                </Label>
-                <Input
-                  id="description"
-                  value={novoJob.description}
-                  onChange={(e) =>
-                    setNovoJob((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  className="col-span-3"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="link" className="text-right">
-                  Link
-                </Label>
-                <Input
-                  id="link"
-                  value={novoJob.link}
-                  onChange={(e) =>
-                    setNovoJob((prev) => ({
-                      ...prev,
-                      link: e.target.value,
-                    }))
-                  }
-                  className="col-span-3"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
+            <DialogContent aria-describedby={undefined}>
+              <DialogHeader>
+                <DialogTitle>Confirm exclusion</DialogTitle>
+                <DialogDescription>
+                  Are you sure want to delete this job? This action cannot be
+                  undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button className="cursor-pointer" variant="secondary">
+                    Cancel
+                  </Button>
+                </DialogClose>
                 <Button
                   className="cursor-pointer"
-                  type="button"
-                  variant="secondary"
+                  variant="destructive"
+                  onClick={handleDeleteJob}
                 >
-                  Cancel
+                  Yes, exclude
                 </Button>
-              </DialogClose>
-              <Button
-                className="cursor-pointer"
-                type="submit"
-                onClick={handleCreateNewJob}
-              >
-                Add Job
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal for editing description/feedback */}
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogContent aria-describedby={undefined}>
+              <DialogHeader>
+                <DialogTitle>
+                  Edit{' '}
+                  {currentField === 'description' ? 'Description' : 'Feedback'}
+                </DialogTitle>
+                <DialogDescription>Make your changes below</DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="text" className="text-right">
+                    {currentField === 'description'
+                      ? 'Description'
+                      : 'Feedback'}
+                  </Label>
+                  <Input
+                    id="text"
+                    value={currentText}
+                    onChange={(e) => setCurrentText(e.target.value)}
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="secondary">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button type="submit" onClick={handleModalSubmit}>
+                  Save
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Modal for creating new job */}
+          <Dialog
+            open={isNovoJobModalOpen}
+            onOpenChange={setIsNovoJobModalOpen}
+          >
+            <DialogContent aria-describedby={undefined}>
+              <DialogHeader>
+                <DialogTitle>Add New Job</DialogTitle>
+                <DialogDescription>
+                  Fill in the details of the new job
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="companyName" className="text-right">
+                    Company Name
+                  </Label>
+                  <Input
+                    id="companyName"
+                    value={novoJob.companyName}
+                    onChange={(e) =>
+                      setNovoJob((prev) => ({
+                        ...prev,
+                        companyName: e.target.value,
+                      }))
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="status" className="text-right">
+                    Status
+                  </Label>
+                  <select
+                    id="status"
+                    value={novoJob.status}
+                    onChange={(e) =>
+                      setNovoJob((prev) => ({
+                        ...prev,
+                        status: e.target.value,
+                      }))
+                    }
+                    className="col-span-3 p-2 border rounded"
+                  >
+                    <option value="applied">Applied</option>
+                    <option value="interviewing">Interviewing</option>
+                    <option value="offered">Offered</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="accepted">Accepted</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="description" className="text-right">
+                    Description
+                  </Label>
+                  <Input
+                    id="description"
+                    value={novoJob.description}
+                    onChange={(e) =>
+                      setNovoJob((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="link" className="text-right">
+                    Link
+                  </Label>
+                  <Input
+                    id="link"
+                    value={novoJob.link}
+                    onChange={(e) =>
+                      setNovoJob((prev) => ({
+                        ...prev,
+                        link: e.target.value,
+                      }))
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button
+                    className="cursor-pointer"
+                    type="button"
+                    variant="secondary"
+                  >
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button
+                  className="cursor-pointer"
+                  type="submit"
+                  onClick={handleCreateNewJob}
+                >
+                  Add Job
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

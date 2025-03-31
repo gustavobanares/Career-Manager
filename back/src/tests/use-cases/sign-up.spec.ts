@@ -1,6 +1,6 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/users-repository'
+import { SignUpUseCase } from '@/use-cases/sign-up'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { SignUpUseCase } from './sign-up'
 
 let inMemoryUsersRepository: InMemoryUsersRepository
 let sut: SignUpUseCase

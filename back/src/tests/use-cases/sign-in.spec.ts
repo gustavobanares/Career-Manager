@@ -1,7 +1,7 @@
 import { InMemoryUsersRepository } from '@/repositories/in-memory/users-repository'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { SignInUseCase } from './sign-in'
 import { hash } from 'bcryptjs'
+import { SignInUseCase } from '@/use-cases/sign-in'
 
 let inMemoryUsersRepository: InMemoryUsersRepository
 let sut: SignInUseCase

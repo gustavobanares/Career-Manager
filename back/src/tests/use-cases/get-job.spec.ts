@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { GetJobUseCase } from './get-job'
 import { InMemoryJobsRepository } from '@/repositories/in-memory/jobs-repository'
 import { ResourceNotFoundError } from '@/errors/resource-not-found'
+import { GetJobUseCase } from '@/use-cases/get-job'
 
 let inMemoryJobsRepository: InMemoryJobsRepository
 let sut: GetJobUseCase

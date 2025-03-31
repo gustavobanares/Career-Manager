@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { InMemoryJobsRepository } from '@/repositories/in-memory/jobs-repository'
 import { InMemoryUsersRepository } from '@/repositories/in-memory/users-repository'
 import { ResourceNotFoundError } from '@/errors/resource-not-found'
-import { UpdateJobUseCase } from './update-job'
 import { UnauthorizedError } from '@/errors/unauthorized'
+import { UpdateJobUseCase } from '@/use-cases/update-job'
 
 let inMemoryJobsRepository: InMemoryJobsRepository
 let inMemoryUsersRepository: InMemoryUsersRepository
