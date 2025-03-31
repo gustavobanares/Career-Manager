@@ -1,15 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react'
+/* este codigo utilizou ajuda de ia */
+
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+  useCallback,
+} from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import html2pdf from 'html2pdf.js'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
+import { api } from '@/lib/axios'
+import { authContext } from '@/context/auth-context'
+import { AxiosError } from 'axios'
+import toast from 'react-hot-toast'
+import { toastSuccessStyle } from '@/lib/toast-success-style'
 
 interface CVManagerProps {
   userId?: string
-  onSave?: (content: string) => void
+  /* onSave?: (content: string) => void */
 }
 
-const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
+const CVManager: React.FC<CVManagerProps> = ({ userId }) => {
+  const { user } = useContext(authContext)
+  const [loading, setLoading] = useState(false)
+  const quillRef = useRef<ReactQuill | null>(null)
+
   // Default CV template
   const defaultCVTemplate = `
     <div>
@@ -75,12 +92,14 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
   `
 
   const [content, setContent] = useState<string>('')
-  const editorRef = useRef<ReactQuill>(null)
 
   // Initialize with default template when component mounts
   useEffect(() => {
+    if (user?.cvData) {
+      return setContent(user?.cvData)
+    }
     setContent(defaultCVTemplate)
-  }, [])
+  }, [user?.cvData, defaultCVTemplate])
 
   // Quill.js configuration
   const modules = {
@@ -96,7 +115,7 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
 
   // Export to PDF function with improved style preservation
   const exportToPDF = () => {
-    const quillEditor = editorRef.current?.getEditor()
+    const quillEditor = quillRef.current?.getEditor()
     if (!quillEditor) return
 
     // Create a temporary div for the cleaned content
@@ -141,26 +160,57 @@ const CVManager: React.FC<CVManagerProps> = ({ userId, onSave }) => {
   }
 
   // Handle CV Save
-  const handleSave = () => {
-    if (onSave) {
-      onSave(content)
+  const handleSave = async () => {
+    try {
+      setLoading(true)
+      await api.patch('/cv', { content })
+      toast.success('CV updated with success!', toastSuccessStyle)
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error('Error: Problem while trying to update the CV ')
+      }
+    } finally {
+      setLoading(false)
     }
   }
 
+  const resetCv = async () => {
+    setContent(defaultCVTemplate)
+  }
+
+  const handleRef = useCallback((ref: ReactQuill | null) => {
+    if (!ref) {
+      return console.error('Error on quill ref')
+    }
+
+    const quill = ref.getEditor()
+
+    quill.root.setAttribute('spellcheck', 'false')
+
+    quillRef.current = ref
+  }, [])
+
   return (
-    <div className="text-center md:px-60 md:h-full flex justify-center items-center md:mx-36">
+    <div className="text-center md:px-60 md:h-full flex justify-center items-center md:mx-14">
       <div className="cv-manager flex-col flex gap-5 ">
         <div className="text-editor">
           <ReactQuill
-            ref={editorRef}
+            ref={handleRef}
             value={content}
             onChange={setContent}
             modules={modules}
           />
         </div>
         <div className="mt-2 mx-4 flex space-x-4 justify-around">
-          <Button onClick={handleSave} className="px-4 py-2 text-white rounded">
+          <Button
+            onClick={handleSave}
+            disabled={loading}
+            className="px-4 py-2 text-white rounded"
+          >
             Save CV
+          </Button>
+          <Button onClick={resetCv} className="px-4 py-2 text-white rounded">
+            Reset CV
           </Button>
           <Button
             onClick={exportToPDF}
