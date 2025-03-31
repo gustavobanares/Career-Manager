@@ -38,6 +38,7 @@ export class InMemoryUsersRepository implements UsersRepository {
       name,
       email,
       password,
+      cvData: null,
     }
 
     this.items.push(user)

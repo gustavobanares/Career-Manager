@@ -9,6 +9,7 @@ import React, {
 } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
+// @ts-expect-error doesnt exists ts config lib
 import html2pdf from 'html2pdf.js'
 import { Button } from '@/components/ui/button'
 import { api } from '@/lib/axios'

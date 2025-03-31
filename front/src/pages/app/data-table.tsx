@@ -1,9 +1,9 @@
-'use client'
-
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  RowData,
+  TableMeta,
   useReactTable,
 } from '@tanstack/react-table'
 
@@ -16,30 +16,30 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  updateData: (rowIndex: number, columnId: string, value: any) => void
+interface DataTableProps<TData extends RowData, TValue> {
+  columns: ColumnDef<TData, TValue>[] // Definição das colunas
+  data: TData[] // Dados da tabela
+  updateData: (rowIndex: number, columnId: string, value: TValue) => void
   openModal: (field: 'description' | 'feedback', index: number) => void
   deleteJob: (jobId: string) => void // Novo prop para deleção
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable<TData extends RowData, TValue>({
   columns,
   data,
   updateData,
   openModal,
-  deleteJob, // Adicionar ao destructuring
+  deleteJob,
 }: DataTableProps<TData, TValue>) {
-  const table = useReactTable({
+  const table = useReactTable<TData>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     meta: {
       updateData,
       openModal,
-      deleteJob, // Adicionar ao meta
-    },
+      deleteJob,
+    } as TableMeta<TData, TValue>, // Tipagem do meta
   })
 
   return (
@@ -48,32 +48,28 @@ export function DataTable<TData, TValue>({
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead
-                    key={header.id}
-                    className="whitespace-nowrap overflow-hidden text-ellipsis"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                )
-              })}
-              {/* Remova essa linha duplicada de "Ações" */}
-              {/* <TableHead>Ações</TableHead> */}
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  key={header.id}
+                  className="whitespace-nowrap overflow-hidden text-ellipsis"
+                >
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                </TableHead>
+              ))}
             </TableRow>
           ))}
         </TableHeader>
         <TableBody>
-          {table.getRowModel().rows?.length ? (
+          {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
+                data-state={row.getIsSelected() ? 'selected' : undefined}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell
@@ -83,7 +79,6 @@ export function DataTable<TData, TValue>({
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
-                {/* Coluna de ações */}
                 <TableCell></TableCell>
               </TableRow>
             ))
