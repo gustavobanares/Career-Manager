@@ -9,7 +9,7 @@
     "dev": "tsx watch src/server.ts",
     "test": "npx vitest run",
     "test:watch": "npx vitest",
-    "build": "tsup src --out-dir build --ignore-watch src/tests/**"
+    "build": "tsup src --out-dir build"
   },
   "keywords": [],
   "author": "",
