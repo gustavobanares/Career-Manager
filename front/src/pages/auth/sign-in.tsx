@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import { AxiosError } from 'axios'
 import { toastSuccessStyle } from '@/lib/toast-success-style'
 import cvVector from '../../../assets/cv-vector.png'
+import { toastErrorStyle } from '@/lib/toast-error-style'
 
 export interface SignInProps {
   email: string
@@ -42,15 +43,18 @@ export function SignIn() {
       navigate('/', { replace: true })
     } catch (error) {
       if (error instanceof AxiosError) {
-        toast.error('Invalid credentials', {
-          style: {
-            color: '#4243b8',
-          },
-          iconTheme: {
-            primary: '#a61919',
-            secondary: '#FFFAEE',
-          },
-        })
+        if (error.status === 500) {
+          return toast.error('Internal server error', {
+            style: {
+              color: '#4243b8',
+            },
+            iconTheme: {
+              primary: '#a61919',
+              secondary: '#FFFAEE',
+            },
+          })
+        }
+        return toast.error('Invalid credentials', toastErrorStyle)
       }
     } finally {
       setIsLoading(false)

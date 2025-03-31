@@ -1,3 +1,5 @@
+/* este codigo utilizou ajuda de ia */
+
 import { authContext } from '@/context/auth-context'
 import { useContext } from 'react'
 

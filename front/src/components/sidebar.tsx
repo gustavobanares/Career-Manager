@@ -27,6 +27,22 @@ export function SideBar() {
           <SheetContent>
             <nav>
               <div>
+                <NavLink
+                  to={'/'}
+                  className="flex items-center pl-3 rounded-lg transition-colors hover:text-foreground pt-10 gap-4 outline-none"
+                >
+                  <FaHome size={40} color="#5254f3" />
+                  <span className="font-bold text-[#151788]">Home</span>
+                </NavLink>
+
+                <NavLink
+                  to={'/cv-manager'}
+                  className="flex items-center pl-3 rounded-lg transition-colors hover:text-foreground pt-10 gap-4 outline-none"
+                >
+                  <GrDocumentText size={40} color="#5254f3" />
+                  <span className="font-bold text-[#151788]">CV Manager</span>
+                </NavLink>
+
                 <button
                   onClick={() => {
                     signOut()
@@ -73,7 +89,7 @@ export function SideBar() {
                   <GrDocumentText size={40} color="white" />
                 </NavLink>
               </TooltipTrigger>
-              <TooltipContent side="right">Home</TooltipContent>
+              <TooltipContent side="right">CV manager</TooltipContent>
             </Tooltip>
 
             <Tooltip>

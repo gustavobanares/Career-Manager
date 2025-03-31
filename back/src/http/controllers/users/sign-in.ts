@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 import { makeSignInUseCase } from '@/use-cases/factories/make-sign-in-use-case'
+import { ResourceNotFoundError } from '@/errors/resource-not-found'
+import { UnauthorizedError } from '@/errors/unauthorized'
 
 export async function signIn(request: FastifyRequest, reply: FastifyReply) {
   const signInSchema = z.object({
@@ -29,8 +31,14 @@ export async function signIn(request: FastifyRequest, reply: FastifyReply) {
       token,
     })
   } catch (error) {
-    reply.status(409).send({
-      message: 'Invalid credentials',
-    })
+    if (
+      error instanceof ResourceNotFoundError ||
+      error instanceof UnauthorizedError
+    ) {
+      reply.status(409).send({
+        message: 'Invalid credentials',
+      })
+    }
+    reply.status(500).send({ message: 'internal server error' })
   }
 }
