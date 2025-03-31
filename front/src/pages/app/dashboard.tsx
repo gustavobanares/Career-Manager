@@ -18,6 +18,9 @@ import toast from 'react-hot-toast'
 import { PlusCircle } from 'lucide-react'
 import { authContext } from '@/context/auth-context'
 import { Skeleton } from '@/components/ui/skeleton'
+import { toastSuccessStyle } from '@/lib/toast-success-style'
+import { toastErrorStyle } from '@/lib/toast-error-style'
+import { AxiosError } from 'axios'
 
 type JobData = Payment & {
   application_status?: string
@@ -120,10 +123,10 @@ export function Dashboard() {
         ),
       )
 
-      toast.success('Job updated successfully!')
+      toast.success('Job updated successfully!', toastSuccessStyle)
     } catch (error) {
       console.error('Error of updating:', error)
-      toast.error('Error update job')
+      toast.error('Error update job', toastErrorStyle)
     }
   }
 
@@ -143,15 +146,17 @@ export function Dashboard() {
       // Remove job from local state
       setData((prev) => prev.filter((job) => job.id !== jobToDelete))
 
-      toast.success('Job removed successfully!')
+      toast.success('Job removed successfully!', toastSuccessStyle)
 
       // Close the confirmation dialog
       setIsDeleteConfirmationOpen(false)
       setJobToDelete(null)
     } catch (error) {
-      console.error('Error of exclusion complet:', error)
-      console.error('Details of error:', error.response?.data)
-      toast.error('Error to remove a job')
+      if (error instanceof AxiosError) {
+        console.error('Error of exclusion complet:', error)
+        console.error('Details of error:', error.response?.data)
+        toast.error('Error to remove a job', toastErrorStyle)
+      }
     }
   }
 
@@ -163,7 +168,7 @@ export function Dashboard() {
         application_status: novoJob.status.toUpperCase(),
       }
 
-      const response = await api.post('/jobs', payload)
+      await api.post('/jobs', payload)
 
       // Immediately fetch fresh data after creating a new job
       await fetchData()
@@ -178,11 +183,13 @@ export function Dashboard() {
         application_status: 'APPLIED',
       })
 
-      toast.success('New job added successfully!')
+      toast.success('New job added successfully!', toastSuccessStyle)
     } catch (error) {
-      console.error('Error to create a new job:', error)
-      toast.error('Error to create a new job')
-      console.log('Details of error:', error.response?.data)
+      if (error instanceof AxiosError) {
+        console.error('Error to create a new job:', error)
+        toast.error('Error to create a new job', toastErrorStyle)
+        console.log('Details of error:', error.response?.data)
+      }
     }
   }
 
