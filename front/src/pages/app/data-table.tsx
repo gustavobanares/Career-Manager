@@ -3,7 +3,6 @@ import {
   flexRender,
   getCoreRowModel,
   RowData,
-  TableMeta,
   useReactTable,
 } from '@tanstack/react-table'
 
@@ -16,12 +15,24 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+// Define custom meta type with the functions you need
+interface CustomTableMeta {
+  updateData: (rowIndex: number, columnId: string, value: any) => void
+  openModal: (field: 'description' | 'feedback', index: number) => void
+  deleteJob: (jobId: string) => void
+}
+
+// Extend the TableMeta type
+declare module '@tanstack/react-table' {
+  interface TableMeta<TData extends RowData> extends CustomTableMeta {}
+}
+
 interface DataTableProps<TData extends RowData, TValue> {
   columns: ColumnDef<TData, TValue>[] // Definição das colunas
   data: TData[] // Dados da tabela
-  updateData: (rowIndex: number, columnId: string, value: TValue) => void
+  updateData: (rowIndex: number, columnId: string, value: any) => void
   openModal: (field: 'description' | 'feedback', index: number) => void
-  deleteJob: (jobId: string) => void // Novo prop para deleção
+  deleteJob: (jobId: string) => void
 }
 
 export function DataTable<TData extends RowData, TValue>({
@@ -39,7 +50,7 @@ export function DataTable<TData extends RowData, TValue>({
       updateData,
       openModal,
       deleteJob,
-    } as TableMeta<TData, TValue>, // Tipagem do meta
+    },
   })
 
   return (
