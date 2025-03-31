@@ -56,22 +56,63 @@ export function Dashboard() {
 
   async function fetchData() {
     try {
-      const response = await api.get<JobData[]>('/jobs')
+      const response = await api.get<JobData[] | { jobs: JobData[] } | JobData>(
+        '/jobs',
+      )
 
-      const jobsData = Array.isArray(response.data)
-        ? response.data
-        : response.data.jobs || [response.data]
+      // Handle different response structures safely
+      let jobsData: JobData[] = []
 
-      const formattedData = jobsData.map((job: JobData) => ({
-        id: job.id,
-        companyName: job.companyName,
-        status: job.application_status?.toLowerCase() || 'unknown',
-        description: job.description || '',
-        feedback: job.feedback || '',
-        link: job.link || '',
-        created_at: job.created_at ? new Date(job.created_at) : new Date(),
-        updated_at: job.updated_at ? new Date(job.updated_at) : new Date(),
-      }))
+      if (Array.isArray(response.data)) {
+        jobsData = response.data
+      } else if (response.data && typeof response.data === 'object') {
+        if ('jobs' in response.data && Array.isArray(response.data.jobs)) {
+          jobsData = response.data.jobs
+        } else {
+          // Treat as a single job object
+          jobsData = [response.data as JobData]
+        }
+      }
+
+      const formattedData = jobsData.map((job: JobData) => {
+        // Ensure status is one of the allowed values
+        let status:
+          | 'applied'
+          | 'interviewing'
+          | 'offered'
+          | 'rejected'
+          | 'accepted' = 'applied'
+
+        if (job.application_status) {
+          const lowercaseStatus = job.application_status.toLowerCase()
+          // Check if the status is one of the allowed values
+          if (
+            lowercaseStatus === 'applied' ||
+            lowercaseStatus === 'interviewing' ||
+            lowercaseStatus === 'offered' ||
+            lowercaseStatus === 'rejected' ||
+            lowercaseStatus === 'accepted'
+          ) {
+            status = lowercaseStatus as
+              | 'applied'
+              | 'interviewing'
+              | 'offered'
+              | 'rejected'
+              | 'accepted'
+          }
+        }
+
+        return {
+          id: job.id,
+          companyName: job.companyName,
+          status,
+          description: job.description || '',
+          feedback: job.feedback || '',
+          link: job.link || '',
+          created_at: job.created_at ? new Date(job.created_at) : new Date(),
+          updated_at: job.updated_at ? new Date(job.updated_at) : new Date(),
+        }
+      })
 
       setData(formattedData)
       setIsLoading(false)
