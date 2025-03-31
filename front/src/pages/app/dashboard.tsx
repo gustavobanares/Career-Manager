@@ -1,3 +1,5 @@
+/* este codigo utilizou ajuda de ia */
+
 import { useState, useEffect, useContext } from 'react'
 import { Payment, columns } from './columns'
 import { DataTable } from './data-table'
@@ -248,7 +250,7 @@ export function Dashboard() {
             open={isDeleteConfirmationOpen}
             onOpenChange={setIsDeleteConfirmationOpen}
           >
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
               <DialogHeader>
                 <DialogTitle>Confirm exclusion</DialogTitle>
                 <DialogDescription>
@@ -275,7 +277,7 @@ export function Dashboard() {
 
           {/* Modal for editing description/feedback */}
           <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
               <DialogHeader>
                 <DialogTitle>
                   Edit{' '}
@@ -316,7 +318,7 @@ export function Dashboard() {
             open={isNovoJobModalOpen}
             onOpenChange={setIsNovoJobModalOpen}
           >
-            <DialogContent>
+            <DialogContent aria-describedby={undefined}>
               <DialogHeader>
                 <DialogTitle>Add New Job</DialogTitle>
                 <DialogDescription>

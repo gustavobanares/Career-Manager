@@ -1,6 +1,8 @@
 import { compare } from 'bcryptjs'
 import { UsersRepository } from '../repositories/users-repository'
 import { User } from '@prisma/client'
+import { ResourceNotFoundError } from '@/errors/resource-not-found'
+import { UnauthorizedError } from '@/errors/unauthorized'
 
 export interface SignInUseCaseRequest {
   email: string
@@ -21,13 +23,13 @@ export class SignInUseCase {
     const user = await this.usersRepository.findByEmail(email)
 
     if (!user) {
-      throw new Error('User not found.')
+      throw new ResourceNotFoundError()
     }
 
     const doesPasswordMatch = await compare(password, user.password)
 
     if (!doesPasswordMatch) {
-      throw new Error('Password does not match')
+      throw new UnauthorizedError()
     }
 
     return { user }
